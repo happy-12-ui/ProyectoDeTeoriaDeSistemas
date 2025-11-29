@@ -1,16 +1,16 @@
 /**
- * DFA Visualization Engine
- * Core Logic & Rendering
+ * Motor de Visualisacion DFA
+ * Logica Central y Renderizado
  */
 
-// --- Base Automaton Class ---
+// --- Clase Base del Automata ---
 class Automaton {
     constructor(name) {
         this.name = name;
-        this.states = []; // Array of state objects { id, x, y, isFinal, label }
-        this.transitions = []; // Array of { from, to, symbol }
+        this.states = []; // areglo de objetos de estado { id, x, y, isFinal, label }
+        this.transitions = []; // areglo de { from, to, symbol }
         this.currentState = null;
-        this.history = []; // Log of steps
+        this.history = []; // historial de pasos
     }
 
     reset() {
@@ -58,7 +58,7 @@ class Automaton {
 
     matchesSymbol(rule, symbol) {
         if (rule === symbol) return true;
-        // Special categories
+        // categorias espesiales
         if (rule === 'DIGIT' && /[0-9]/.test(symbol)) return true;
         if (rule === 'ALPHA' && /[a-zA-Z]/.test(symbol)) return true;
         if (rule === 'ALPHANUM' && /[a-zA-Z0-9]/.test(symbol)) return true;
@@ -75,7 +75,7 @@ class Automaton {
     }
 }
 
-// --- Email Automaton ---
+// --- Automata de Email ---
 class EmailAutomaton extends Automaton {
     constructor() {
         super("Email Validator");
@@ -83,13 +83,13 @@ class EmailAutomaton extends Automaton {
     }
 
     setupGraph() {
-        // States
-        // q0: Start, expecting start of local-part
-        // q1: Inside local-part
-        // q2: Read '@', expecting start of domain
-        // q3: Inside domain part
-        // q4: Read '.', expecting domain extension
-        // q5: Inside domain extension (Final)
+        // Estados
+        // q0: Inicio, esperando el inicio de la parte local
+        // q1: Adentro de la parte local
+        // q2: Leyo '@', esperando inicio del dominio
+        // q3: Adentro de la parte del dominio
+        // q4: Leyo '.', esperando extencion del dominio
+        // q5: Adentro de la extencion del dominio (Final)
 
         this.states = [
             { id: 'q0', label: 'q0', x: 100, y: 300, isStart: true, isFinal: false },
@@ -101,29 +101,29 @@ class EmailAutomaton extends Automaton {
         ];
 
         this.transitions = [
-            // q0 -> q1 (Start local-part: alpha or digit, no dot/hyphen)
+            // q0 -> q1 (Inicia parte local: alfa o digito, sin punto/guion)
             { from: 'q0', to: 'q1', symbol: 'ALPHANUM' },
 
-            // q1 -> q1 (Continue local-part: alpha, digit, dot, hyphen, underscore)
-            // Note: Simplification for "no end with dot" check is tricky in pure DFA without lookahead or more states.
-            // We will use a simplified DFA that allows dot/hyphen in middle but we might need more states to strictly enforce "not at end".
-            // Strict "no dot at end of local-part" before @ requires splitting q1.
-            // Let's refine:
-            // q1: Just read alphanum (valid ending for local-part)
-            // q1_sep: Just read dot/hyphen/underscore (invalid ending)
+            // q1 -> q1 (Continua parte local: alfa, digito, punto, guion, guion bajo)
+            // Nota: Simplificasion para checar "no terminar con punto" es dificil en DFA puro sin ver adelante o mas estados.
+            // Usaremos un DFA simplificado que permite punto/guion en medio pero podriamos necesitar mas estados para enforsar "no al final".
+            // Estricto "no punto al final de parte local" antes de @ requiere dividir q1.
+            // Vamos a refinar:
+            // q1: Solo leyo alfanum (final valido para parte local)
+            // q1_sep: Solo leyo punto/guion/guion bajo (final invalido)
 
-            // Revised States for stricter compliance:
-            // q0: Start
-            // q1: Valid local-part end (read alphanum)
-            // q1_sep: Read separator (., -, _), must be followed by alphanum
-            // q2: Read @
-            // q3: Valid domain part end (read alphanum)
-            // q3_sep: Read separator (., -), must be followed by alphanum
-            // q4: Read DOT (special separator for extension)
-            // q5: Valid extension (read alphanum)
+            // Estados Revisados para cumplimiento mas estricto:
+            // q0: Inicio
+            // q1: Final valido de parte local (leyo alfanum)
+            // q1_sep: Leyo separador (., -, _), debe ser seguido por alfanum
+            // q2: Leyo @
+            // q3: Final valido de parte de dominio (leyo alfanum)
+            // q3_sep: Leyo separador (., -), debe ser seguido por alfanum
+            // q4: Leyo PUNTO (separador especial para extencion)
+            // q5: Extencion valida (leyo alfanum)
         ];
 
-        // Re-defining states for strictness - SCALED UP
+        // Redefiniendo estados para estrictez - ESCALADO
         this.states = [
             { id: 'q0', label: 'Start', x: 100, y: 400, isStart: true, isFinal: false },
             { id: 'q1', label: 'Local', x: 300, y: 400, isStart: false, isFinal: false },
@@ -136,42 +136,42 @@ class EmailAutomaton extends Automaton {
         ];
 
         this.transitions = [
-            // q0 -> q1 (Start local)
+            // q0 -> q1 (Inicio local)
             { from: 'q0', to: 'q1', symbol: 'ALPHANUM' },
 
-            // q1 -> q1 (More alphanum)
+            // q1 -> q1 (Mas alfanum)
             { from: 'q1', to: 'q1', symbol: 'ALPHANUM' },
-            // q1 -> q1s (Separator)
+            // q1 -> q1s (Separador)
             { from: 'q1', to: 'q1s', symbol: '.' },
             { from: 'q1', to: 'q1s', symbol: '-' },
             { from: 'q1', to: 'q1s', symbol: '_' },
 
-            // q1s -> q1 (Back to valid)
+            // q1s -> q1 (De vuelta a valido)
             { from: 'q1s', to: 'q1', symbol: 'ALPHANUM' },
 
-            // q1 -> q2 (At) - Only from valid local end
+            // q1 -> q2 (Arroba) - Solo desde final local valido
             { from: 'q1', to: 'q2', symbol: '@' },
 
-            // q2 -> q3 (Start domain)
+            // q2 -> q3 (Inicio dominio)
             { from: 'q2', to: 'q3', symbol: 'ALPHANUM' },
 
-            // q3 -> q3 (More alphanum)
+            // q3 -> q3 (Mas alfanum)
             { from: 'q3', to: 'q3', symbol: 'ALPHANUM' },
-            // q3 -> q3s (Separator: hyphen) - Dot is special
+            // q3 -> q3s (Separador: guion) - Punto es especial
             { from: 'q3', to: 'q3s', symbol: '-' },
 
-            // q3s -> q3 (Back to valid)
+            // q3s -> q3 (De vuelta a valido)
             { from: 'q3s', to: 'q3', symbol: 'ALPHANUM' },
 
-            // q3 -> q4 (The Dot)
+            // q3 -> q4 (El Punto)
             { from: 'q3', to: 'q4', symbol: '.' },
 
-            // q4 -> q5 (Start Extension)
+            // q4 -> q5 (Inicio Extencion)
             { from: 'q4', to: 'q5', symbol: 'ALPHANUM' },
 
-            // q5 -> q5 (More extension)
+            // q5 -> q5 (Mas extencion)
             { from: 'q5', to: 'q5', symbol: 'ALPHANUM' },
-            // q5 -> q4 (Another dot? e.g. .co.uk)
+            // q5 -> q4 (Otro punto? ej. .co.uk)
             { from: 'q5', to: 'q4', symbol: '.' }
         ];
 
@@ -179,7 +179,7 @@ class EmailAutomaton extends Automaton {
     }
 
     matchesSymbol(rule, symbol) {
-        // Override for specific chars
+        // Sobreescribir para caracteres especificos
         if (['.', '-', '_', '@'].includes(symbol)) {
             return rule === symbol;
         }
@@ -204,15 +204,15 @@ G -> [a-z0-9] G | . F | ε
             return "Es un email válido. Cumple con el formato local@dominio.ext";
         }
 
-        // Analyze specific failure cases
+        // Analizar casos de falla especificos
         if (!valid) {
-            // It failed during a transition
-            // We need to find *where* it failed. Let's re-simulate quickly or use the last state from the main loop
-            // But here we just get the result. 
-            // Actually, to give a good reason, we need the context of the failure.
-            // Let's look at the last char and state.
+            // Fallo durante una transicion
+            // Necesitamos encontrar *donde* fallo. Vamos a resimular rapido o usar el ultimo estado del bucle principal
+            // Pero aqui solo obtenemos el resultado. 
+            // En realidad, para dar una buena razon, necesitamos el contexto de la falla.
+            // Vamos a ver el ultimo caracter y estado.
 
-            // Heuristic analysis based on input pattern
+            // Analisis heuristico basado en patron de entrada
             if (/^[^a-zA-Z0-9]/.test(input)) return "No se acepta porque un email debe comenzar con una letra o número.";
             if (input.includes(', ')) return "No se acepta porque contiene una coma (',') que no es válida en emails.";
             if ((input.match(/@/g) || []).length > 1) return "No se acepta porque contiene más de un símbolo '@'.";
@@ -224,7 +224,7 @@ G -> [a-z0-9] G | . F | ε
 
             return "No se acepta porque contiene caracteres inválidos o una estructura incorrecta.";
         } else {
-            // Valid transitions but stopped in non-final
+            // Transiciones validas pero paro en no-final
             if (finalState.id === 'q0') return "No se acepta porque está vacío.";
             if (finalState.id === 'q1' || finalState.id === 'q1s') return "No se acepta porque falta el símbolo '@' y el dominio.";
             if (finalState.id === 'q2') return "No se acepta porque falta el dominio después del '@'.";
@@ -236,7 +236,7 @@ G -> [a-z0-9] G | . F | ε
     }
 }
 
-// --- Modulo 3 Automaton ---
+// --- Automata Modulo 3 ---
 class Modulo3Automaton extends Automaton {
     constructor() {
         super("Modulo 3 Calculator");
@@ -244,27 +244,27 @@ class Modulo3Automaton extends Automaton {
     }
 
     setupGraph() {
-        // States: q0 (rem 0), q1 (rem 1), q2 (rem 2) - SCALED UP
+        // Estados: q0 (rem 0), q1 (rem 1), q2 (rem 2) - ESCALADO
         this.states = [
             { id: 'q0', label: 'Rem 0', x: 600, y: 150, isStart: true, isFinal: true },
             { id: 'q1', label: 'Rem 1', x: 900, y: 600, isStart: false, isFinal: false },
             { id: 'q2', label: 'Rem 2', x: 300, y: 600, isStart: false, isFinal: false }
         ];
 
-        // Transitions logic: new_rem = (old_rem * 10 + digit) % 3
-        // 10 % 3 = 1. So new_rem = (old_rem * 1 + digit) % 3 = (old_rem + digit) % 3
+        // Logica de transiciones: nuevo_rem = (viejo_rem * 10 + digito) % 3
+        // 10 % 3 = 1. Asi que nuevo_rem = (viejo_rem * 1 + digito) % 3 = (viejo_rem + digito) % 3
 
-        // From q0 (0):
+        // Desde q0 (0):
         // 1 -> (0+1)%3 = 1 (q1)
         // 2 -> (0+2)%3 = 2 (q2)
         // 3 -> (0+3)%3 = 0 (q0)
 
-        // From q1 (1):
+        // Desde q1 (1):
         // 1 -> (1+1)%3 = 2 (q2)
         // 2 -> (1+2)%3 = 0 (q0)
         // 3 -> (1+3)%3 = 1 (q1)
 
-        // From q2 (2):
+        // Desde q2 (2):
         // 1 -> (2+1)%3 = 0 (q0)
         // 2 -> (2+2)%3 = 1 (q1)
         // 3 -> (2+3)%3 = 2 (q2)
@@ -296,7 +296,7 @@ B -> 1 S | 2 A | 3 B
     }
 
     getConclusion(input, valid, finalState) {
-        // Calculate sum of digits
+        // Calcular suma de digitos
         let sum = 0;
         for (let char of input) {
             if (/[0-9]/.test(char)) sum += parseInt(char);
@@ -315,7 +315,7 @@ B -> 1 S | 2 A | 3 B
     }
 }
 
-// --- Renderer Class ---
+// --- Clase Renderizador ---
 class Renderer {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -336,8 +336,8 @@ class Renderer {
 
     setAutomaton(automaton) {
         this.automaton = automaton;
-        // Recalculate positions based on canvas size if needed, or just scale
-        // For now, we'll use fixed relative coordinates or simple scaling
+        // Recalcular posiciones basado en tamaño de canvas si es necesario, o solo escalar
+        // Por ahora, usaremos coordenadas relativas fijas o escalado simple
         this.draw();
     }
 
@@ -370,19 +370,19 @@ class Renderer {
         this.ctx.save();
         this.ctx.translate(offsetX, offsetY);
 
-        // Draw Transitions (Edges)
+        // Dibujar Transiciones (Bordes)
         this.automaton.transitions.forEach(t => {
             const fromState = this.automaton.states.find(s => s.id === t.from);
             const toState = this.automaton.states.find(s => s.id === t.to);
             this.drawEdge(fromState, toState, t.symbol);
         });
 
-        // Draw States (Nodes)
+        // Dibujar Estados (Nodos)
         this.automaton.states.forEach(state => {
             this.drawNode(state);
         });
 
-        // Draw Active State Pulse
+        // Dibujar Pulso de Estado Activo
         if (this.automaton.currentState) {
             this.drawPulse(this.automaton.currentState);
         }
@@ -398,46 +398,46 @@ class Renderer {
     drawNode(state) {
         const ctx = this.ctx;
         const isActive = this.automaton.currentState && this.automaton.currentState.id === state.id;
-        const radius = 50; // Increased from 30
+        const radius = 30; // Revertido a 30
 
         ctx.beginPath();
         ctx.arc(state.x, state.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = isActive ? 'rgba(0, 243, 255, 0.2)' : 'rgba(20, 30, 50, 0.8)';
         ctx.fill();
-        ctx.lineWidth = isActive ? 4 : 3; // Thicker lines
+        ctx.lineWidth = isActive ? 3 : 2; // Lineas mas delgadas
         ctx.strokeStyle = isActive ? '#00f3ff' : '#94a3b8';
         if (state.isFinal) {
-            ctx.strokeStyle = isActive ? '#00ff9d' : '#00ff9d'; // Green for final
-            ctx.lineWidth = 5;
-            // Double circle for final
+            ctx.strokeStyle = isActive ? '#00ff9d' : '#00ff9d'; // Verde para final
+            ctx.lineWidth = 4;
+            // Doble circulo para final
             ctx.stroke();
             ctx.beginPath();
-            ctx.arc(state.x, state.y, radius - 8, 0, Math.PI * 2);
+            ctx.arc(state.x, state.y, radius - 6, 0, Math.PI * 2);
             ctx.stroke();
         } else {
             ctx.stroke();
         }
 
-        // Label
+        // Etiqueta
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 18px Fira Code'; // Larger font
+        ctx.font = 'bold 14px Fira Code'; // Fuente mas chica
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(state.label, state.x, state.y);
 
-        // Start arrow
+        // Flecha de inicio
         if (state.isStart) {
             ctx.beginPath();
-            ctx.moveTo(state.x - 80, state.y); // Adjusted for larger radius
-            ctx.lineTo(state.x - (radius + 10), state.y);
+            ctx.moveTo(state.x - 50, state.y); // Ajustado para radio mas chico
+            ctx.lineTo(state.x - (radius + 5), state.y);
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.stroke();
-            // Arrowhead
+            // Punta de flecha
             ctx.beginPath();
-            ctx.moveTo(state.x - (radius + 10), state.y);
-            ctx.lineTo(state.x - (radius + 20), state.y - 8);
-            ctx.lineTo(state.x - (radius + 20), state.y + 8);
+            ctx.moveTo(state.x - (radius + 5), state.y);
+            ctx.lineTo(state.x - (radius + 15), state.y - 5);
+            ctx.lineTo(state.x - (radius + 15), state.y + 5);
             ctx.fill();
         }
     }
@@ -446,33 +446,33 @@ class Renderer {
         const ctx = this.ctx;
         ctx.beginPath();
 
-        // Calculate angle
+        // Calcular angulo
         const dx = to.x - from.x;
         const dy = to.y - from.y;
         const angle = Math.atan2(dy, dx);
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        // Self loop
+        // Auto bucle
         if (from.id === to.id) {
             ctx.beginPath();
-            ctx.arc(from.x, from.y - 40, 20, 0, Math.PI * 2); // Circle above
+            ctx.arc(from.x, from.y - 40, 20, 0, Math.PI * 2); // Circulo arriba
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.stroke();
-            // Text
+            // Texto
             ctx.fillStyle = '#aaa';
             ctx.fillText(label, from.x, from.y - 70);
             return;
         }
 
-        // Curve for bidirectional or just aesthetic
-        // Simple straight line for now, maybe quadratic curve if multiple edges
+        // Curva para bidireccional o solo estetico
+        // Linea recta simple por ahora, tal vez curva cuadratica si hay multiples bordes
         ctx.moveTo(from.x + Math.cos(angle) * 30, from.y + Math.sin(angle) * 30);
         ctx.lineTo(to.x - Math.cos(angle) * 30, to.y - Math.sin(angle) * 30);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Arrowhead
+        // Punta de flecha
         const endX = to.x - Math.cos(angle) * 30;
         const endY = to.y - Math.sin(angle) * 30;
         ctx.beginPath();
@@ -482,7 +482,7 @@ class Renderer {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.fill();
 
-        // Label
+        // Etiqueta
         const midX = (from.x + to.x) / 2;
         const midY = (from.y + to.y) / 2;
         ctx.fillStyle = '#aaa';
@@ -491,11 +491,11 @@ class Renderer {
 
     drawPulse(state) {
         const ctx = this.ctx;
-        const radius = 50 + Math.sin(this.pulseFrame * 0.1) * 8; // Adjusted for base radius 50
+        const radius = 30 + Math.sin(this.pulseFrame * 0.1) * 5; // Ajustado para radio base 30
         ctx.beginPath();
         ctx.arc(state.x, state.y, radius, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(0, 243, 255, ${0.5 - Math.sin(this.pulseFrame * 0.1) * 0.2})`;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
 
@@ -509,23 +509,23 @@ class Renderer {
     }
 }
 
-// --- Main App Logic ---
+// --- Logica Principal de la App ---
 document.addEventListener('DOMContentLoaded', () => {
     const renderer = new Renderer('dfa-canvas');
     let currentAutomaton = new EmailAutomaton();
 
-    // UI Elements
+    // Elementos UI
     const grammarContent = document.getElementById('grammar-content');
     const logContent = document.getElementById('log-content');
     const inputString = document.getElementById('input-string');
     const statusIndicator = document.getElementById('status-indicator');
 
-    // Initialize
+    // Inicializar
     renderer.setAutomaton(currentAutomaton);
     renderer.startAnimation();
     updateGrammar();
 
-    // Event Listeners
+    // Escuchadores de Eventos
     document.getElementById('nav-email').addEventListener('click', () => switchModule('email'));
     document.getElementById('nav-modulo').addEventListener('click', () => switchModule('modulo'));
 
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         log('Registro borrado.', 'system');
     });
 
-    // Custom Log Event
+    // Evento de Log Personalizado
     document.addEventListener('automaton-log', (e) => {
         log(e.detail.message, e.detail.type);
     });
@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function animateInput() {
         const input = inputString.value;
-        const speed = 2100 - document.getElementById('speed-slider').value; // Invert slider
+        const speed = 2100 - document.getElementById('speed-slider').value; // Invertir slider
 
         currentAutomaton.reset();
         renderer.draw();
@@ -642,15 +642,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentAutomaton.currentState.isFinal) {
             statusIndicator.innerText = "ACEPTADA";
             statusIndicator.style.borderColor = "#00ff9d";
-            statusIndicator.style.color = "#00ff9d";
-
             const conclusion = currentAutomaton.getConclusion(input, true, currentAutomaton.currentState);
             log(`Animación finalizada: ${conclusion}`, 'success');
         } else {
-            statusIndicator.innerText = "INCOMPLETA";
-            statusIndicator.style.borderColor = "#ff0055";
-            statusIndicator.style.color = "#ff0055";
-
+            // Nota: En animacion, 'valid' puede ser true (transiciones ok) pero el estado no es final
+            // Si paro temprano por error, nesesitamos manejar eso.
+            // Pero aki estamos al final del bucle.
             const conclusion = currentAutomaton.getConclusion(input, true, currentAutomaton.currentState);
             log(`Animación finalizada: ${conclusion}`, 'error');
         }
