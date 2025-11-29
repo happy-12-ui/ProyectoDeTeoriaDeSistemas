@@ -4,7 +4,7 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --primary-accent: #00f3ff;
     --secondary-accent: #00ff9d;
-    /* Success */
+    /* Exito */
     --error-accent: #ff0055;
     --transition-accent: #bd00ff;
     --text-main: #e0e6ed;
@@ -38,12 +38,11 @@ body {
     width: 95vw;
     height: 95vh;
     display: grid;
-    grid-template-rows: 90px 1fr;
-    /* Increased header height */
-    gap: 25px;
+    grid-template-rows: 70px 1fr;
+    gap: 20px;
 }
 
-/* Glassmorphism Panels */
+/* Paneles estilo vidrio */
 .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -51,16 +50,15 @@ body {
     border: 1px solid var(--glass-border);
     border-radius: 16px;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    padding: 25px;
-    /* Increased padding */
+    padding: 20px;
 }
 
-/* Header */
+/* Cabesera */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 30px;
 }
 
 .logo {
@@ -68,14 +66,13 @@ header {
     align-items: center;
     gap: 15px;
     font-family: var(--font-display);
-    font-size: 1.8rem;
-    /* Larger logo */
+    font-size: 1.5rem;
     letter-spacing: 2px;
 }
 
 .logo .icon {
     color: var(--primary-accent);
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     animation: spin 10s linear infinite;
 }
 
@@ -92,13 +89,11 @@ nav {
     background: transparent;
     border: 1px solid var(--glass-border);
     color: var(--text-muted);
-    padding: 14px 28px;
-    /* Larger padding */
+    padding: 10px 20px;
     border-radius: 10px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 1.1rem;
-    /* Larger font */
+    font-size: 1rem;
     transition: all 0.3s ease;
     font-weight: 600;
 }
@@ -116,14 +111,12 @@ nav {
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
 }
 
-/* Main Layout */
+/* Diseño prinsipal */
 main {
     display: grid;
-    grid-template-columns: 450px 1fr;
-    /* Widened to 450px */
-    grid-template-rows: 1fr 220px;
-    /* Log panel height */
-    gap: 25px;
+    grid-template-columns: 350px 1fr;
+    grid-template-rows: 1fr 200px;
+    gap: 20px;
     height: 100%;
 }
 
@@ -131,8 +124,7 @@ main {
     grid-row: 1 / -1;
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    /* More gap */
+    gap: 25px;
 }
 
 #canvas-container {
@@ -151,18 +143,17 @@ main {
     flex-direction: column;
 }
 
-/* Controls Styling */
+/* Estilos de controles */
 h2,
 h3 {
     font-family: var(--font-display);
     color: var(--text-main);
     margin-bottom: 15px;
-    font-size: 1.4rem;
-    /* Larger headers */
+    font-size: 1.2rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1px solid var(--glass-border);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
 }
 
 .input-group {
@@ -172,8 +163,7 @@ h3 {
 }
 
 label {
-    font-size: 1rem;
-    /* Larger label */
+    font-size: 0.9rem;
     color: var(--text-muted);
     font-family: var(--font-mono);
 }
@@ -182,12 +172,10 @@ input[type="text"] {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--glass-border);
     color: var(--primary-accent);
-    padding: 16px;
-    /* Larger input */
+    padding: 12px;
     border-radius: 8px;
     font-family: var(--font-mono);
-    font-size: 1.2rem;
-    /* Larger text */
+    font-size: 1rem;
     outline: none;
     transition: border-color 0.3s;
 }
@@ -204,16 +192,14 @@ input[type="text"]:focus {
 }
 
 .action-btn {
-    padding: 16px 24px;
-    /* Increased padding */
+    padding: 12px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--font-display);
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 1rem;
-    /* Increased font size */
+    font-size: 0.9rem;
     transition: all 0.2s;
     letter-spacing: 1px;
 }
@@ -255,17 +241,15 @@ input[type="text"]:focus {
     padding: 20px;
     border-radius: 8px;
     font-family: var(--font-mono);
-    font-size: 1rem;
-    /* Larger code font */
+    font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.6;
-    height: 250px;
-    /* Taller grammar block */
+    height: 200px;
     overflow-y: auto;
     border-left: 4px solid var(--transition-accent);
 }
 
-/* Canvas Area */
+/* Area de canvas */
 canvas {
     width: 100%;
     height: 100%;
@@ -290,7 +274,7 @@ canvas {
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
 }
 
-/* Log Panel */
+/* Panel de logs */
 .log-header {
     display: flex;
     justify-content: space-between;
@@ -323,8 +307,7 @@ canvas {
     border-radius: 8px;
     padding: 15px;
     font-family: var(--font-mono);
-    font-size: 1.1rem;
-    /* Larger log text */
+    font-size: 0.95rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -355,7 +338,7 @@ canvas {
     color: var(--transition-accent);
 }
 
-/* Scrollbar */
+/* Barra de scroll */
 ::-webkit-scrollbar {
     width: 10px;
 }
