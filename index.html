@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFA Visualization Engine | Creative Coding</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="glass-panel">
+            <div class="logo">
+                <span class="icon">◈</span>
+                <h1>Proyecto Final <span class="highlight">:)</span></h1>
+            </div>
+            <nav>
+                <button id="nav-email" class="nav-btn active" data-module="email">Ejercicio 1: Email</button>
+                <button id="nav-modulo" class="nav-btn" data-module="modulo">Ejercicio 2: Múltiplos de 3</button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="controls" class="glass-panel">
+                <h2>Panel de Control</h2>
+
+                <div class="input-group">
+                    <label for="input-string">Cadena de Entrada</label>
+                    <input type="text" id="input-string" placeholder="Escribe aquí..." autocomplete="off">
+                </div>
+
+                <div class="control-actions">
+                    <button id="btn-validate" class="action-btn primary">Validar</button>
+                    <button id="btn-animate" class="action-btn secondary">Animar</button>
+                    <button id="btn-reset" class="action-btn danger">Reset</button>
+                </div>
+
+                <div class="slider-group">
+                    <label for="speed-slider">Velocidad de Animación</label>
+                    <input type="range" id="speed-slider" min="100" max="2000" value="500" step="100">
+                </div>
+
+                <div class="grammar-display">
+                    <h3>Gramática Regular</h3>
+                    <div id="grammar-content" class="code-block">
+                        <!-- Grammar will be injected here -->
+                        S -> ...
+                    </div>
+                </div>
+            </section>
+
+            <section id="canvas-container" class="glass-panel">
+                <canvas id="dfa-canvas"></canvas>
+                <div class="canvas-overlay">
+                    <div class="status-indicator" id="status-indicator">ESPERANDO INPUT</div>
+                </div>
+            </section>
+
+            <section id="log-panel" class="glass-panel">
+                <div class="log-header">
+                    <h3>System Log</h3>
+                    <button id="clear-log" class="icon-btn">Clear</button>
+                </div>
+                <div id="log-content" class="terminal-output">
+                    <div class="log-line system">> Sistema iniciado...</div>
+                    <div class="log-line system">> Motor gráfico listo.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
